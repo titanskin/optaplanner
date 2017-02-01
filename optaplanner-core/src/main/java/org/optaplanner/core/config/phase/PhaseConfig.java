@@ -23,10 +23,12 @@ import org.optaplanner.core.config.constructionheuristic.ConstructionHeuristicPh
 import org.optaplanner.core.config.exhaustivesearch.ExhaustiveSearchPhaseConfig;
 import org.optaplanner.core.config.heuristic.policy.HeuristicConfigPolicy;
 import org.optaplanner.core.config.localsearch.LocalSearchPhaseConfig;
+import org.optaplanner.core.config.multiLevel.MultiLevelPhaseConfig;
 import org.optaplanner.core.config.partitionedsearch.PartitionedSearchPhaseConfig;
 import org.optaplanner.core.config.phase.custom.CustomPhaseConfig;
 import org.optaplanner.core.config.solver.termination.TerminationConfig;
 import org.optaplanner.core.config.util.ConfigUtils;
+import org.optaplanner.core.impl.multilevelphase.MultiLevelSearchPhase;
 import org.optaplanner.core.impl.phase.Phase;
 import org.optaplanner.core.impl.solver.recaller.BestSolutionRecaller;
 import org.optaplanner.core.impl.solver.termination.PhaseToSolverTerminationBridge;
@@ -38,7 +40,8 @@ import org.optaplanner.core.impl.solver.termination.Termination;
         ExhaustiveSearchPhaseConfig.class,
         ConstructionHeuristicPhaseConfig.class,
         LocalSearchPhaseConfig.class,
-        PartitionedSearchPhaseConfig.class
+        PartitionedSearchPhaseConfig.class,
+        MultiLevelPhaseConfig.class
 })
 public abstract class PhaseConfig<C extends PhaseConfig> extends AbstractConfig<C> {
 

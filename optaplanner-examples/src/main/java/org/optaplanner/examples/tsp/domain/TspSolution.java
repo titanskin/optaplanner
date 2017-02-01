@@ -17,6 +17,7 @@
 package org.optaplanner.examples.tsp.domain;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,6 +39,11 @@ import org.optaplanner.persistence.xstream.api.score.buildin.simplelong.SimpleLo
 @XStreamAlias("TspSolution")
 public class TspSolution extends AbstractPersistable {
 
+	public TspSolution() {
+		locationList = new ArrayList<>();
+		visitList = new ArrayList<>();
+	}
+	
     private String name;
     protected DistanceType distanceType;
     protected String distanceUnitOfMeasurement;
