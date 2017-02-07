@@ -16,11 +16,13 @@ import org.optaplanner.core.config.localsearch.LocalSearchPhaseConfig;
 import org.optaplanner.core.config.phase.PhaseConfig;
 import org.optaplanner.core.config.solver.EnvironmentMode;
 import org.optaplanner.core.config.util.ConfigUtils;
+import org.optaplanner.core.impl.constructionheuristic.ConstructionHeuristicPhase;
 import org.optaplanner.core.impl.multilevelphase.DefaultMultiLevelSearchPhase;
 import org.optaplanner.core.impl.multilevelphase.MultiLevelProvider;
 import org.optaplanner.core.impl.multilevelphase.MultiLevelSearchPhase;
 import org.optaplanner.core.impl.partitionedsearch.partitioner.SolutionPartitioner;
 import org.optaplanner.core.impl.score.director.ScoreDirector;
+import org.optaplanner.core.impl.solver.ChildThreadType;
 import org.optaplanner.core.impl.solver.recaller.BestSolutionRecaller;
 import org.optaplanner.core.impl.solver.termination.Termination;
 import org.optaplanner.core.impl.solver.thread.DefaultSolverThreadFactory;
@@ -42,7 +44,9 @@ public class MultiLevelPhaseConfig extends PhaseConfig<MultiLevelPhaseConfig> {
     // and also because the input config file should match the output config file
 
     private Class<MultiLevelProvider> multiLevelProviderClass = null;
-
+    
+    protected MultiLevelProvider multiLevelProvider = null;
+    
     protected Class<? extends ThreadFactory> threadFactoryClass = null;
     protected String runnablePartThreadLimit = null;
 
@@ -118,6 +122,7 @@ public class MultiLevelPhaseConfig extends PhaseConfig<MultiLevelPhaseConfig> {
                 phaseIndex, solverConfigPolicy.getLogIndentation(), bestSolutionRecaller,
                 buildPhaseTermination(phaseConfigPolicy, solverTermination));
         
+        phase.setConfigPolicy(phaseConfigPolicy.createChildThreadConfigPolicy(ChildThreadType.PART_THREAD));
         phase.setMultilevelProvider(buildMultiLevelProvider());
         phase.setThreadPoolExector(buildThreadPoolExecutor());
         List<PhaseConfig> phaseConfigList_ = phaseConfigList;
@@ -128,6 +133,8 @@ public class MultiLevelPhaseConfig extends PhaseConfig<MultiLevelPhaseConfig> {
         }
         // I have to build them
         phase.setPhaseConfigList(phaseConfigList_);
+        phase.setConfigPolicy(phaseConfigPolicy.createChildThreadConfigPolicy(ChildThreadType.PART_THREAD));
+        
         EnvironmentMode environmentMode = phaseConfigPolicy.getEnvironmentMode();
         if (environmentMode.isNonIntrusiveFullAsserted()) {
             phase.setAssertStepScoreFromScratch(true);
@@ -140,8 +147,12 @@ public class MultiLevelPhaseConfig extends PhaseConfig<MultiLevelPhaseConfig> {
     }
        
     private MultiLevelProvider buildMultiLevelProvider() {
+    	if (multiLevelProvider != null)
+    		return multiLevelProvider;
+    	
         if (multiLevelProviderClass != null) {
-            return ConfigUtils.newInstance(this, "mutliLevelProviderClass", multiLevelProviderClass);
+        	multiLevelProvider =ConfigUtils.newInstance(this, "mutliLevelProviderClass", multiLevelProviderClass); 
+            return multiLevelProvider;
         } else {
             throw new UnsupportedOperationException();
         }

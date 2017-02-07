@@ -38,7 +38,15 @@ public class Domicile extends AbstractPersistable implements Standstill {
     // Complex methods
     // ************************************************************************
 
-    /**
+    public Domicile() {
+	}
+    
+    public Domicile(Location location) {
+		super();
+		this.location = location;
+	}
+
+	/**
      * @param standstill never null
      * @return a positive number, the distance multiplied by 1000 to avoid floating point arithmetic rounding errors
      */

@@ -154,5 +154,11 @@ public class TspSolution extends AbstractPersistable {
                 return numberFormat.format(((double) distance) / 1000.0) + " " + distanceUnitOfMeasurement;
         }
     }
+    
+    @Override
+    public String toString() {
+    	// TODO Auto-generated method stub
+    	return "TspSolution" + locationList.size();
+    }
 
 }

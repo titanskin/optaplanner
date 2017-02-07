@@ -31,17 +31,17 @@ public interface MultiLevelProvider<Solution_, V extends LevelObject<Solution_>>
 	/**
 	 * Used to adjust fragments by the coarser solution. 
 	 * @param levelObject
-	 */
-	void adjustFragments(LevelObject<Solution_> levelObject, Solution_ coarseSolution);
+	 */	
+	void adjustFragments(LevelObject<Solution_> levelObject, Solution_ coarseSolution, Solution_ fragment);
 		
 	/**
 	 *
 	 * @param solverScope
 	 * @return if there is no coarse, return parametered solution
 	 */
-	LevelObject<Solution_> coarse(DefaultSolverScope<Solution_> solverScope); // ich muss eigentlich ein tupel zurück geben: Solution_, V
+	LevelObject<Solution_> createLevelObject(DefaultSolverScope<Solution_> solverScope); // ich muss eigentlich ein tupel zurück geben: Solution_, V
 	
-	Solution_ extendSolution(LevelObject<Solution_> levelObj, DefaultSolverScope<Solution_> coarseScope,
-			List<DefaultSolverScope<Solution_>> fragments, DefaultSolverScope<Solution_> original);
+	Solution_ extendSolution(LevelObject<Solution_> levelObj, Solution_ coarseScope,
+			List<Solution_> fragments, Solution_ original);
 
 }

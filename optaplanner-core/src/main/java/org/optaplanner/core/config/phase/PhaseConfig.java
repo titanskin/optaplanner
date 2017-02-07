@@ -28,6 +28,7 @@ import org.optaplanner.core.config.partitionedsearch.PartitionedSearchPhaseConfi
 import org.optaplanner.core.config.phase.custom.CustomPhaseConfig;
 import org.optaplanner.core.config.solver.termination.TerminationConfig;
 import org.optaplanner.core.config.util.ConfigUtils;
+import org.optaplanner.core.impl.evolutionary.EvolutionarySearchPhase;
 import org.optaplanner.core.impl.multilevelphase.MultiLevelSearchPhase;
 import org.optaplanner.core.impl.phase.Phase;
 import org.optaplanner.core.impl.solver.recaller.BestSolutionRecaller;
@@ -41,7 +42,8 @@ import org.optaplanner.core.impl.solver.termination.Termination;
         ConstructionHeuristicPhaseConfig.class,
         LocalSearchPhaseConfig.class,
         PartitionedSearchPhaseConfig.class,
-        MultiLevelPhaseConfig.class
+        MultiLevelPhaseConfig.class,
+        EvolutionarySearchPhase.class
 })
 public abstract class PhaseConfig<C extends PhaseConfig> extends AbstractConfig<C> {
 

@@ -39,6 +39,14 @@ public class Visit extends AbstractPersistable implements Standstill {
         return location;
     }
 
+    public Visit() {
+		// TODO Auto-generated constructor stub
+	}
+    
+    public Visit(Location location) {
+    	this.location = location;
+	}
+    
     public void setLocation(Location location) {
         this.location = location;
     }
