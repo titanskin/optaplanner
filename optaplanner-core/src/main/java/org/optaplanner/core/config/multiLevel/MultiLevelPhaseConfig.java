@@ -16,7 +16,6 @@ import org.optaplanner.core.config.localsearch.LocalSearchPhaseConfig;
 import org.optaplanner.core.config.phase.PhaseConfig;
 import org.optaplanner.core.config.solver.EnvironmentMode;
 import org.optaplanner.core.config.util.ConfigUtils;
-import org.optaplanner.core.impl.constructionheuristic.ConstructionHeuristicPhase;
 import org.optaplanner.core.impl.multilevelphase.DefaultMultiLevelSearchPhase;
 import org.optaplanner.core.impl.multilevelphase.MultiLevelProvider;
 import org.optaplanner.core.impl.multilevelphase.MultiLevelSearchPhase;

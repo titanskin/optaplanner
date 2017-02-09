@@ -21,23 +21,23 @@ public class TSPMultiLevelProvider implements MultiLevelProvider<TspSolution, TS
 	protected double relaxSpringForce = 1.0;
 	protected double relaxEpsilonToQuit = 1.0;
 	protected int minSize;
-	
-	static class Triple<K,G,V> {
+
+	static class Triple<K, G, V> {
 		K k;
 		G g;
 		V v;
+
 		public Triple(K k, G g, V v) {
 			super();
 			this.k = k;
 			this.g = g;
 			this.v = v;
 		}
-		
+
 	}
 
-	
 	public TSPMultiLevelProvider() {
-		
+
 	}
 
 	@Override
@@ -50,31 +50,28 @@ public class TSPMultiLevelProvider implements MultiLevelProvider<TspSolution, TS
 		// fixed. they shouldn't be moved.
 		// => change the domain.
 
-		
-		
 	}
 
 	@Override
-	public LevelObject<TspSolution> createLevelObject(DefaultSolverScope<TspSolution> solverScope) {
-		
+	public TSPLevelObj createLevelObject(DefaultSolverScope<TspSolution> solverScope) {
+
 		if (solverScope.getBestSolution().getLocationList().size() <= minSize) {
-			return new DefaultLevelObject<TspSolution>(null, null);
+			return new TSPLevelObj(null, null, null);
 		}
-		
+
 		List<TspSolution> fragments = new ArrayList<>();
 		TspSolution coarse = null;
 
 		long time = System.currentTimeMillis();
 
-//		System.out.println(contractionRate + " " + iterationCountOfRelax + " " + relaxEpsilonToQuit + " " + relaxSpringForce);
+		// System.out.println(contractionRate + " " + iterationCountOfRelax + "
+		// " + relaxEpsilonToQuit + " " + relaxSpringForce);
 
-		TspSolution current = solverScope.getWorkingSolution();		
+		TspSolution current = solverScope.getWorkingSolution();
 		List<Location> locations = new ArrayList<>(current.getLocationList());
 
 		if (!locations.contains(current.getDomicile().getLocation()))
 			locations.add(current.getDomicile().getLocation());
-
-		
 
 		UF unionFind = new UF(locations.size());
 
@@ -82,22 +79,19 @@ public class TSPMultiLevelProvider implements MultiLevelProvider<TspSolution, TS
 		List<Triple<Double, Location, Location>> compareList = new ArrayList<>(n * n / 2 + 1);
 		for (int i = 0; i < locations.size(); ++i) {
 			for (int j = i + 1; j < locations.size(); ++j) {
-				Location a = locations.get(i),
-						b = locations.get(j);
+				Location a = locations.get(i), b = locations.get(j);
 				compareList.add(new Triple<Double, Location, Location>(a.getAirDistanceDoubleTo(b), a, b));
 			}
 			locations.get(i).setId((long) i);
 		}
-		
+
 		// uses the most time!
 		compareList.sort(new Comparator<Triple<Double, Location, Location>>() {
 			@Override
-			public int compare(
-					Triple<Double, Location, Location> o1,
-					Triple<Double, Location, Location> o2) {
+			public int compare(Triple<Double, Location, Location> o1, Triple<Double, Location, Location> o2) {
 				return Double.compare(o1.k, o2.k);
 			}
-		});		
+		});
 		for (int i = 0, j = 0; j < Math.ceil(n * contractionRate) + 1 && i < compareList.size(); ++i) {
 			Location a = compareList.get(i).g, b = compareList.get(i).v;
 			j += (unionFind.connected(a.getId().intValue(), b.getId().intValue()) ? 1 : 0);
@@ -115,7 +109,7 @@ public class TSPMultiLevelProvider implements MultiLevelProvider<TspSolution, TS
 		for (int i = 0; i < n; ++i) {
 			coarseLocationSet.get(partitions[i]).add(locations.get(i));
 		}
-		
+
 		// zeile stimmt nicht
 
 		List<Location> coarseLocations = new ArrayList<>(coarseLocationSet.size());
@@ -131,7 +125,7 @@ public class TSPMultiLevelProvider implements MultiLevelProvider<TspSolution, TS
 			}
 			coarseLocations.add(getAvgLocation(coarseLocationSet.get(i), i));
 		}
-		
+
 		doRelaxation(coarseLocations, coarseLocationsDistances);
 
 		// so for now...
@@ -145,14 +139,14 @@ public class TSPMultiLevelProvider implements MultiLevelProvider<TspSolution, TS
 				if (l != location) {
 					visitList.add(new Visit(location));
 				}
-				
+
 			}
 			long fragId = 0;
 			for (List<Location> locationsSet : coarseLocationSet) {
 				// how to?
-				TspSolution fragment =new TspSolution();
+				TspSolution fragment = new TspSolution();
 				fragment.setId(fragId);
-				Location domicileLoc = coarseLocations.get((int)fragId);
+				Location domicileLoc = coarseLocations.get((int) fragId);
 				fragment.setLocationList(locationsSet);
 				fragment.getLocationList().add(domicileLoc);
 				fragment.setVisitList(new ArrayList<>(locationsSet.size()));
@@ -165,16 +159,14 @@ public class TSPMultiLevelProvider implements MultiLevelProvider<TspSolution, TS
 				fragId++;
 			}
 			// generate fragments
-			
+
 			coarse.setVisitList(visitList);
 			coarse.setDomicile(new Domicile(l));
 		}
-		System.out.println("#locations " + locations.size() + " -> "+ coarse.getLocationList().size() + " @ " + (System.currentTimeMillis() - time) + "ms");
-		
-		
-		
-		
-		return new DefaultLevelObject<TspSolution>(coarse, fragments);
+		System.out.println("#locations " + locations.size() + " -> " + coarse.getLocationList().size() + " @ "
+				+ (System.currentTimeMillis() - time) + "ms");
+
+		return new TSPLevelObj(coarse, fragments, partitions);
 	}
 
 	private double sq(double a) {
@@ -206,15 +198,12 @@ public class TSPMultiLevelProvider implements MultiLevelProvider<TspSolution, TS
 					} else {
 						System.err.println(i + " " + j + " " + dist[i][j] + " " + rdist);
 					}
-					// System.out.println(Math.abs(dist[i][j] - rdist)+ " " +
-					// Arrays.toString(xy[i]) + " " + Arrays.toString(xy[j]) + "
-					// " +dist[i][j]);
 					val += Math.abs(dist[i][j] - rdist);
 				}
 			}
 
 			if (val < relaxEpsilonToQuit || lastVal - val < relaxEpsilonToQuit) {
-//				System.out.println(iter + " " + val);
+				// System.out.println(iter + " " + val);
 				return;
 			}
 
@@ -227,7 +216,7 @@ public class TSPMultiLevelProvider implements MultiLevelProvider<TspSolution, TS
 				force[i][1] = 0.0;
 			}
 			lastVal = val;
-//			System.out.println(iter + " " + val);
+			// System.out.println(iter + " " + val);
 		}
 	}
 
@@ -260,7 +249,7 @@ public class TSPMultiLevelProvider implements MultiLevelProvider<TspSolution, TS
 		x /= a.size();
 		y /= a.size();
 
-		return new AirLocation(-1, x, y);
+		return new AirLocation(id, x, y);
 	}
 
 	private double getShortestDistance(List<Location> a, List<Location> b) {
@@ -274,9 +263,23 @@ public class TSPMultiLevelProvider implements MultiLevelProvider<TspSolution, TS
 	}
 
 	@Override
-	public TspSolution extendSolution(LevelObject<TspSolution> levelObj, TspSolution coarseScope,
-			List<TspSolution> fragments, TspSolution current) {
-		return null;
+	public TspSolution extendSolution(TSPLevelObj levelObj, TspSolution coarseScope, List<TspSolution> fragments,
+			TspSolution current) {
+
+		// how to do the mapping
+
+		
+		for (TspSolution tspSolution : fragments) {
+			// map which fragment it is in coarse solution
+			String ids = "";
+			for (Visit visit : tspSolution.getVisitList()) {
+				int id = visit.getLocation().getId().intValue();
+				ids += id + " " ;
+			}
+			System.out.println(tspSolution.getLocationList().size() + " " + ids);
+		}
+
+		return current;
 		// TODO Auto-generated method stub
 
 	}

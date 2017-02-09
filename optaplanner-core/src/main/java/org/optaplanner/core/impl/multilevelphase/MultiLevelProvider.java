@@ -39,9 +39,9 @@ public interface MultiLevelProvider<Solution_, V extends LevelObject<Solution_>>
 	 * @param solverScope
 	 * @return if there is no coarse, return parametered solution
 	 */
-	LevelObject<Solution_> createLevelObject(DefaultSolverScope<Solution_> solverScope); // ich muss eigentlich ein tupel zurück geben: Solution_, V
+	V createLevelObject(DefaultSolverScope<Solution_> solverScope); // ich muss eigentlich ein tupel zurück geben: Solution_, V
 	
-	Solution_ extendSolution(LevelObject<Solution_> levelObj, Solution_ coarseScope,
+	Solution_ extendSolution(V levelObj, Solution_ coarseScope,
 			List<Solution_> fragments, Solution_ original);
 
 }

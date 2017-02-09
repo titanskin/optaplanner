@@ -31,25 +31,28 @@
   	</multiLevelProvider>
 	
   	<localSearch>
-    <unionMoveSelector>
-      <changeMoveSelector>
-        <cacheType>PHASE</cacheType>
-        <selectionOrder>SHUFFLED</selectionOrder>
-      </changeMoveSelector>
-      <tailChainSwapMoveSelector/>
-      <subChainChangeMoveSelector>
-        <subChainSelector>
-          <maximumSubChainSize>50</maximumSubChainSize>
-        </subChainSelector>
-        <selectReversingMoveToo>true</selectReversingMoveToo>
-      </subChainChangeMoveSelector>
-    </unionMoveSelector>
-    <acceptor>
-      <lateAcceptanceSize>400</lateAcceptanceSize>
-    </acceptor>
-    <forager>
-      <acceptedCountLimit>1</acceptedCountLimit>
-    </forager>
-  </localSearch>
+	    <unionMoveSelector>
+	      <changeMoveSelector>
+	        <cacheType>PHASE</cacheType>
+	        <selectionOrder>SHUFFLED</selectionOrder>
+	      </changeMoveSelector>
+	      <tailChainSwapMoveSelector/>
+	      <subChainChangeMoveSelector>
+	        <subChainSelector>
+	          <maximumSubChainSize>50</maximumSubChainSize>
+	        </subChainSelector>
+	        <selectReversingMoveToo>true</selectReversingMoveToo>
+	      </subChainChangeMoveSelector>
+	    </unionMoveSelector>
+	    <acceptor>
+	      <lateAcceptanceSize>400</lateAcceptanceSize>
+	    </acceptor>
+	    <forager>
+	      <acceptedCountLimit>1</acceptedCountLimit>
+	    </forager>
+	     <termination>
+      		<stepCountLimit>5</stepCountLimit>
+    	</termination>
+  	</localSearch>
   </multiLevelSearch>
  </solver>

@@ -24,6 +24,7 @@ import org.optaplanner.core.api.domain.solution.PlanningSolution;
 import org.optaplanner.core.api.score.Score;
 import org.optaplanner.core.api.solver.Solver;
 import org.optaplanner.core.impl.domain.solution.descriptor.SolutionDescriptor;
+import org.optaplanner.core.impl.domain.variable.listener.support.VariableListenerSupport;
 import org.optaplanner.core.impl.phase.scope.AbstractPhaseScope;
 import org.optaplanner.core.impl.score.definition.ScoreDefinition;
 import org.optaplanner.core.impl.score.director.InnerScoreDirector;
@@ -230,6 +231,9 @@ public class DefaultSolverScope<Solution_> {
         // Experiments show that this trick to attain reproducibility doesn't break uniform distribution
         childThreadSolverScope.workingRandom = new Random(workingRandom.nextLong());
         childThreadSolverScope.scoreDirector = scoreDirector.createChildThreadScoreDirector(childThreadType);
+//        childThreadSolverScope.scoreDirector = (InnerScoreDirector<Solution_>) scoreDirector.clone();
+//        childThreadSolverScope.getScoreDirector().dispose();
+//        ((VariableListenerSupport<Solution_>)childThreadSolverScope.getScoreDirector().getSupplyManager()).resetWorkingSolution();
         childThreadSolverScope.startingSystemTimeMillis = startingSystemTimeMillis;
         childThreadSolverScope.endingSystemTimeMillis = endingSystemTimeMillis;
         childThreadSolverScope.startingInitializedScore = null;
