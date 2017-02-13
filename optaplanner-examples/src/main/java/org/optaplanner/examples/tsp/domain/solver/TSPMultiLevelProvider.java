@@ -211,12 +211,12 @@ public class TSPMultiLevelProvider implements MultiLevelProvider<TspSolution, TS
 				xy[i][0] = xy[i][0] + relaxSpringForce * force[i][0];
 				xy[i][1] = xy[i][1] + relaxSpringForce * force[i][1];
 
-				// System.out.println(Arrays.toString(force[i]));
+//				 System.out.println(Arrays.toString(force[i]));
 				force[i][0] = 0.0;
 				force[i][1] = 0.0;
 			}
 			lastVal = val;
-			// System.out.println(iter + " " + val);
+//			 System.out.println(iter + " " + val);
 		}
 	}
 
@@ -276,7 +276,7 @@ public class TSPMultiLevelProvider implements MultiLevelProvider<TspSolution, TS
 				int id = visit.getLocation().getId().intValue();
 				ids += id + " " ;
 			}
-			System.out.println(tspSolution.getLocationList().size() + " " + ids);
+			System.err.println(tspSolution.getLocationList().size() + " " + ids);
 		}
 
 		return current;
