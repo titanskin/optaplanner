@@ -31,4 +31,5 @@ public interface Standstill {
      */
     long getDistanceTo(Standstill standstill);
 
+    boolean isMoveable();
 }

@@ -44,7 +44,7 @@ public class DefaultMultiLevelSearchPhase<Solution_, V extends LevelObject<Solut
 	 */
 
 	// protected ConstructionHeuristicPhase<Solution_> constructionHeuristic;
-	public final static boolean multithreaded = true;
+	public final static boolean multithreaded = false;
 	boolean shouldFragmentsBeCoarsed = false;
 	protected MultiLevelProvider<Solution_, V> multilevelProvider;
 	protected PhaseLifecycleListener<Solution_> sorting; // ??
@@ -110,7 +110,6 @@ public class DefaultMultiLevelSearchPhase<Solution_, V extends LevelObject<Solut
 		if (phases == null) {
 			buildPhases();
 		}
-
 		
 		V levelObj = multilevelProvider.createLevelObject(currentScope);
  
@@ -126,10 +125,16 @@ public class DefaultMultiLevelSearchPhase<Solution_, V extends LevelObject<Solut
 		final Solution_ coarseSolution;
 		if (levelObj.getCoarseSolution() == null) {
 			System.out.println("Coarsening done!");
+			solvePhases(currentScope);
+			
+			
+			// but solving??
 			return;
 		} else {
 			Solver<Solution_> solver = buildSolver(childThreadPlumbingTermination, null, currentScope, true);
 			coarseSolution = solver.solve(levelObj.getCoarseSolution());
+			// TODO hier ist der fehler! coarseSolution ist nicht initialisiert!
+			System.out.println("solving done");
 		}
 
 		// build and solve fragments

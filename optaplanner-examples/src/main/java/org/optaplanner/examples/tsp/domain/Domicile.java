@@ -25,6 +25,8 @@ public class Domicile extends AbstractPersistable implements Standstill {
 
     private Location location;
 
+    private boolean moveable;
+    
     @Override
     public Location getLocation() {
         return location;
@@ -41,8 +43,9 @@ public class Domicile extends AbstractPersistable implements Standstill {
     public Domicile() {
 	}
     
-    public Domicile(Location location) {
+    public Domicile(long id, Location location) {
 		super();
+		this.id = id;
 		this.location = location;
 	}
 
@@ -62,5 +65,10 @@ public class Domicile extends AbstractPersistable implements Standstill {
         }
         return location.getName();
     }
+
+	@Override
+	public boolean isMoveable() {
+		return moveable;
+	}
 
 }

@@ -40,10 +40,10 @@ public class Visit extends AbstractPersistable implements Standstill {
     }
 
     public Visit() {
-		// TODO Auto-generated constructor stub
 	}
     
-    public Visit(Location location) {
+    public Visit(long id, Location location) {
+    	this.id = id;
     	this.location = location;
 	}
     
@@ -100,5 +100,10 @@ public class Visit extends AbstractPersistable implements Standstill {
         }
         return location.getName();
     }
+
+	@Override
+	public boolean isMoveable() {
+		return true;
+	}
 
 }

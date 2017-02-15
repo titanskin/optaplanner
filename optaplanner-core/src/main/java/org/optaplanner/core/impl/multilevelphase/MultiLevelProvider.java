@@ -32,7 +32,7 @@ public interface MultiLevelProvider<Solution_, V extends LevelObject<Solution_>>
 	 * Used to adjust fragments by the coarser solution. 
 	 * @param levelObject
 	 */	
-	void adjustFragments(LevelObject<Solution_> levelObject, Solution_ coarseSolution, Solution_ fragment);
+	void adjustFragments(V levelObject, Solution_ coarseSolution, Solution_ fragment);
 		
 	/**
 	 *

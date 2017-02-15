@@ -1,11 +1,11 @@
+
 package org.optaplanner.examples.tsp.domain.solver;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import org.optaplanner.core.impl.multilevelphase.DefaultLevelObject;
-import org.optaplanner.core.impl.multilevelphase.LevelObject;
 import org.optaplanner.core.impl.multilevelphase.MultiLevelProvider;
 import org.optaplanner.core.impl.solver.scope.DefaultSolverScope;
 import org.optaplanner.examples.tsp.domain.Domicile;
@@ -41,7 +41,7 @@ public class TSPMultiLevelProvider implements MultiLevelProvider<TspSolution, TS
 	}
 
 	@Override
-	public void adjustFragments(LevelObject<TspSolution> levelObject, TspSolution coarseSolution,
+	public void adjustFragments(TSPLevelObj levelObject, TspSolution coarseSolution,
 			TspSolution fragment) {
 		// TODO adjust fragments
 		// since the coarse solution has some restrictions of begin and end, we
@@ -50,13 +50,84 @@ public class TSPMultiLevelProvider implements MultiLevelProvider<TspSolution, TS
 		// fixed. they shouldn't be moved.
 		// => change the domain.
 
+		int id = fragment.getId().intValue();
+		Location coarseLoc = coarseSolution.getLocationList().get(id);
+		// domicile isn't a standstill ... 
+		int prevId = getPrevStandstillPartition(levelObject, coarseSolution, id),
+				nextId = getNextStandstillPartition(levelObject, coarseSolution, id);
+		
+		System.out.println(id + ": prev=" +prevId + " next=" + nextId);
+		Tuple<Location, Location> prevTuple = lookForMinDist(levelObject.getPartitionedLocations(), prevId, id),
+				nextTuple = lookForMinDist(levelObject.getPartitionedLocations(), id, nextId);
+		Visit coarseVisit = coarseSolution.getVisitList().get(id);
+	}
+	
+	private Tuple<Location, Location> lookForMinDist(List<List<Location>> locations, int fragment1, int fragment2) {
+		assert (fragment1 >= 0 && fragment1 < locations.size()
+				&& fragment2 >= 0 && fragment2 < locations.size()
+				&& fragment1 != fragment2); 
+		long min = Long.MAX_VALUE;
+		Tuple<Location, Location> ret = new Tuple<Location, Location>(null, null);
+		for (Location l1 : locations.get(fragment1)) {
+			for (Location l2 : locations.get(fragment2)) {
+				if (l1.getDistanceTo(l2) < min  ) {
+					ret.a = l1; ret.b = l2;
+				}
+			}
+		}
+		// nothing found
+		return ret;
+	}
+	
+	private int getPrevStandstillPartition(TSPLevelObj levelObj, TspSolution coarseSolution, int locId) {
+		List<Location> orderedLocList = getCoarseOrderedList(levelObj, coarseSolution);
+		int prevId =  (locId-1 + orderedLocList.size()) % orderedLocList.size();
+		return orderedLocList.get(prevId).getId().intValue();
+	}
+	
+	private int getNextStandstillPartition(TSPLevelObj obj, TspSolution coarseSolution, int locId) {
+		List<Location> orderedLocList = getCoarseOrderedList(obj, coarseSolution);
+		int prevId =  (locId+1) % orderedLocList.size();
+		return orderedLocList.get(prevId).getId().intValue();
+	}
+		
+	private synchronized List<Location> getCoarseOrderedList(TSPLevelObj obj, TspSolution coarseSolution) {
+		// make other structure
+		if (obj.getCoarseList() != null)
+			return obj.getCoarseList();
+		
+		List<Visit> visits = coarseSolution.getVisitList();
+		int[] nextLocation = new int[coarseSolution.getLocationList().size()];
+		Arrays.fill(nextLocation, -1);
+		int endIdx = -1, beginIdx = coarseSolution.getDomicile().getLocation().getId().intValue();
+		for (int i = 0; i < visits.size(); ++i) {
+			Visit visit= visits.get(i);
+			
+			if (visit.getPreviousStandstill() != null) {
+				int idx = visit.getPreviousStandstill().getLocation().getId().intValue();
+				// here is the fault... 
+				nextLocation[idx] = visit.getLocation().getId().intValue(); 
+			} 
+		}		
+		for (int i = 0; i < nextLocation.length; i++) {
+			if (nextLocation[i] == -1) {
+				endIdx = i;
+				break;
+			}
+		}
+		List<Location> locList = new ArrayList<>(nextLocation.length);
+		for (int idx = beginIdx; idx != endIdx; idx = nextLocation[idx]) {
+			locList.add(coarseSolution.getLocationList().get(idx));
+		}
+		obj.setCoarseList(locList);
+		return locList;
 	}
 
 	@Override
 	public TSPLevelObj createLevelObject(DefaultSolverScope<TspSolution> solverScope) {
 
 		if (solverScope.getBestSolution().getLocationList().size() <= minSize) {
-			return new TSPLevelObj(null, null, null);
+			return new TSPLevelObj(null, null, null, null);
 		}
 
 		List<TspSolution> fragments = new ArrayList<>();
@@ -68,6 +139,7 @@ public class TSPMultiLevelProvider implements MultiLevelProvider<TspSolution, TS
 		// " + relaxEpsilonToQuit + " " + relaxSpringForce);
 
 		TspSolution current = solverScope.getWorkingSolution();
+		System.out.println(current.getVisitList());
 		List<Location> locations = new ArrayList<>(current.getLocationList());
 
 		if (!locations.contains(current.getDomicile().getLocation()))
@@ -131,42 +203,35 @@ public class TSPMultiLevelProvider implements MultiLevelProvider<TspSolution, TS
 		// so for now...
 		coarse = new TspSolution();
 		coarse.setLocationList(coarseLocations);
-		coarse.setName("TspSolution-Coarse");
+		coarse.setName(current.getName() + "-c");
 		{
 			Location l = coarseLocations.get(partitions[current.getDomicile().getLocation().getId().intValue()]);
 			List<Visit> visitList = new ArrayList<>();
 			for (Location location : coarseLocations) {
 				if (l != location) {
-					visitList.add(new Visit(location));
+					visitList.add(new Visit(location.getId(), location));
 				}
-
 			}
 			long fragId = 0;
 			for (List<Location> locationsSet : coarseLocationSet) {
 				// how to?
 				TspSolution fragment = new TspSolution();
+				fragment.setName(current.getName() + "-f");
 				fragment.setId(fragId);
-				Location domicileLoc = coarseLocations.get((int) fragId);
+				// don't do that
 				fragment.setLocationList(locationsSet);
-				fragment.getLocationList().add(domicileLoc);
-				fragment.setVisitList(new ArrayList<>(locationsSet.size()));
-				// TODO
-				for (Location location : locationsSet) {
-					fragment.getVisitList().add(new Visit(location));
-				}
-				fragment.setDomicile(new Domicile(domicileLoc));
 				fragments.add(fragment);
 				fragId++;
 			}
 			// generate fragments
 
 			coarse.setVisitList(visitList);
-			coarse.setDomicile(new Domicile(l));
+			coarse.setDomicile(new Domicile(l.getId(), l));
 		}
 		System.out.println("#locations " + locations.size() + " -> " + coarse.getLocationList().size() + " @ "
-				+ (System.currentTimeMillis() - time) + "ms");
-
-		return new TSPLevelObj(coarse, fragments, partitions);
+				+ (System.currentTimeMillis() - time) + "ms");		
+		
+		return new TSPLevelObj(coarse, fragments, partitions, coarseLocationSet);
 	}
 
 	private double sq(double a) {
