@@ -158,7 +158,7 @@ public class TspSolution extends AbstractPersistable {
     @Override
     public String toString() {
     	// TODO Auto-generated method stub
-    	return "TspSolution" + locationList.size();
+    	return "TspSolution-" + name + "[vListSize=" + visitList.size() + "]";
     }
 
 }

@@ -34,4 +34,7 @@ public class TSPLevelObj extends DefaultLevelObject<TspSolution>{
 	public List<Location> getCoarseList() {
 		return coarseList;
 	}
+	public int[] getPartitions() {
+		return partitions;
+	}
 }

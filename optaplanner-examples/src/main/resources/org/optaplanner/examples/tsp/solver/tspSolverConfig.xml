@@ -14,11 +14,12 @@
     <initializingScoreTrend>ONLY_DOWN</initializingScoreTrend>
   </scoreDirectorFactory>
 
-  <termination>
+  <!-- termination>
     <minutesSpentLimit>2</minutesSpentLimit>
   </termination>
- 
+  -->
   <multiLevelSearch>
+  	<multithreaded>true</multithreaded>
 	  <constructionHeuristic>
 	    <constructionHeuristicType>FIRST_FIT_DECREASING</constructionHeuristicType>
 	  </constructionHeuristic>
@@ -51,7 +52,8 @@
 	      <acceptedCountLimit>1</acceptedCountLimit>
 	    </forager>
 	     <termination>
-      		<stepCountLimit>5</stepCountLimit>
+      		<secondsSpentLimit>10</secondsSpentLimit>
+      		<unimprovedSecondsSpentLimit>2</unimprovedSecondsSpentLimit>
     	</termination>
   	</localSearch>
   </multiLevelSearch>

@@ -34,6 +34,8 @@ public class Visit extends AbstractPersistable implements Standstill {
     // Planning variables: changes during planning, between score calculations.
     private Standstill previousStandstill;
 
+    private boolean movable = true;
+    
     @Override
     public Location getLocation() {
         return location;
@@ -103,7 +105,11 @@ public class Visit extends AbstractPersistable implements Standstill {
 
 	@Override
 	public boolean isMoveable() {
-		return true;
+		return movable;
+	}
+	
+	public void setMovable(boolean movable) {
+		this.movable = movable;
 	}
 
 }

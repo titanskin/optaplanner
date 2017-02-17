@@ -21,7 +21,6 @@ import org.optaplanner.core.impl.partitionedsearch.PartitionSolver;
 import org.optaplanner.core.impl.phase.AbstractPhase;
 import org.optaplanner.core.impl.phase.Phase;
 import org.optaplanner.core.impl.phase.event.PhaseLifecycleListener;
-import org.optaplanner.core.impl.score.director.AbstractScoreDirector;
 import org.optaplanner.core.impl.solver.ChildThreadType;
 import org.optaplanner.core.impl.solver.recaller.BestSolutionRecaller;
 import org.optaplanner.core.impl.solver.scope.DefaultSolverScope;
@@ -44,7 +43,7 @@ public class DefaultMultiLevelSearchPhase<Solution_, V extends LevelObject<Solut
 	 */
 
 	// protected ConstructionHeuristicPhase<Solution_> constructionHeuristic;
-	public final static boolean multithreaded = false;
+	protected boolean multithreaded = true;
 	boolean shouldFragmentsBeCoarsed = false;
 	protected MultiLevelProvider<Solution_, V> multilevelProvider;
 	protected PhaseLifecycleListener<Solution_> sorting; // ??
@@ -100,6 +99,14 @@ public class DefaultMultiLevelSearchPhase<Solution_, V extends LevelObject<Solut
 	public void setMultilevelProvider(MultiLevelProvider<Solution_, V> multilevelProvider) {
 		this.multilevelProvider = multilevelProvider;
 	}
+	
+	public void setMultithreaded(boolean multithreaded) {
+		this.multithreaded = multithreaded;
+	}
+	
+	public boolean isMultithreaded() {
+		return multithreaded;
+	}
 
 	@Override
 	public void solve(DefaultSolverScope<Solution_> currentScope) {
@@ -134,7 +141,7 @@ public class DefaultMultiLevelSearchPhase<Solution_, V extends LevelObject<Solut
 			Solver<Solution_> solver = buildSolver(childThreadPlumbingTermination, null, currentScope, true);
 			coarseSolution = solver.solve(levelObj.getCoarseSolution());
 			// TODO hier ist der fehler! coarseSolution ist nicht initialisiert!
-			System.out.println("solving done");
+			System.out.println("Solving coarse done");
 		}
 
 		// build and solve fragments
@@ -149,9 +156,15 @@ public class DefaultMultiLevelSearchPhase<Solution_, V extends LevelObject<Solut
 					public Solution_ call() throws Exception {
 						multilevelProvider.adjustFragments(levelObj, coarseSolution, s);
 						// adjust phases !
-						Solver<Solution_> solver = buildSolver(childThreadPlumbingTermination, null, currentScope,
+						Solver<Solution_> solver = buildSolver(
+								childThreadPlumbingTermination, 
+								null, 
+								currentScope,
 								shouldFragmentsBeCoarsed);
+//						System.out.println("Begin solving fragment " + s);
 						Solution_ fragmentSolution = solver.solve(s);
+						
+//						System.out.println("End solving fragment " + fragmentSolution);
 						return fragmentSolution;
 					}
 				});
@@ -181,6 +194,7 @@ public class DefaultMultiLevelSearchPhase<Solution_, V extends LevelObject<Solut
 				for (Callable<Solution_> callable : tasks) {
 					try {
 						fragments.add(callable.call());
+						
 					} catch (Exception e) {
 						e.printStackTrace();
 						break;
@@ -212,17 +226,27 @@ public class DefaultMultiLevelSearchPhase<Solution_, V extends LevelObject<Solut
 			// TODO ist nicht ganz korrekt... aber läuft vorerst!
 			phase.setSolverPhaseLifecycleSupport(phaseLifecycleSupport);
 			phases.add(phase);
-			System.out.println(index + " " + phase);
 		}
+	
 	}
 
 	private void solvePhases(DefaultSolverScope<Solution_> solverScope) {
+		bestSolutionRecaller.solvingStarted(solverScope);
+        phaseLifecycleSupport.fireSolvingStarted(solverScope);
+        for (Phase<Solution_> phase : phases) {
+            phase.solvingStarted(solverScope);
+        }
 		for (int i = 0; i < phases.size(); ++i) {
 			Phase<Solution_> phase = phases.get(i);
 			phase.solvingStarted(solverScope);
 			phase.solve(solverScope);
 			phase.solvingEnded(solverScope);
 		}
+		for (Phase<Solution_> phase : phases) {
+            phase.solvingEnded(solverScope);
+        }
+        phaseLifecycleSupport.fireSolvingEnded(solverScope);
+        bestSolutionRecaller.solvingEnded(solverScope);
 	}
 
 	@Override
@@ -235,8 +259,9 @@ public class DefaultMultiLevelSearchPhase<Solution_, V extends LevelObject<Solut
 
 		// fix it.
 		// change parameter.
+		// hier stimmt's nicht. 
 		Termination partTermination = new OrCompositeTermination(childThreadPlumbingTermination,
-				termination.createChildThreadTermination(solverScope, ChildThreadType.PART_THREAD));
+				this.termination.createChildThreadTermination(solverScope, ChildThreadType.PART_THREAD));
 
 		BestSolutionRecaller<Solution_> bestSolutionRecaller = new BestSolutionRecallerConfig()
 				.buildBestSolutionRecaller(configPolicy.getEnvironmentMode());
@@ -249,6 +274,7 @@ public class DefaultMultiLevelSearchPhase<Solution_, V extends LevelObject<Solut
 			multiLevelPhase.setPhaseConfigList(phaseConfigList);
 			multiLevelPhase.setThreadPoolExector(threadPoolExector);
 			multiLevelPhase.setConfigPolicy(configPolicy);
+			multiLevelPhase.setMultithreaded(multithreaded);
 			// TODO some more work ... thread...
 			phaseList.add(multiLevelPhase);
 		} else {
@@ -268,8 +294,8 @@ public class DefaultMultiLevelSearchPhase<Solution_, V extends LevelObject<Solut
 		DefaultSolverScope<Solution_> partSolverScope = solverScope
 				.createChildThreadSolverScope(ChildThreadType.PART_THREAD);
 		partSolverScope.setRunnableThreadSemaphore(runnablePartThreadSemaphore);
-		partSolverScope.getScoreDirector().dispose();
-		((AbstractScoreDirector) partSolverScope.getScoreDirector()).triggerVariableListeners();
+//		partSolverScope.getScoreDirector().dispose();
+//		((AbstractScoreDirector) partSolverScope.getScoreDirector()).triggerVariableListeners();
 
 		return new PartitionSolver<>(partTermination, bestSolutionRecaller, phaseList, partSolverScope);
 	}

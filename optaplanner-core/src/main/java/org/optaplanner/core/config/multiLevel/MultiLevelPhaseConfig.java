@@ -49,6 +49,8 @@ public class MultiLevelPhaseConfig extends PhaseConfig<MultiLevelPhaseConfig> {
     protected Class<? extends ThreadFactory> threadFactoryClass = null;
     protected String runnablePartThreadLimit = null;
 
+    protected boolean  multithreaded = true;
+    
     @XStreamImplicit()
     protected List<PhaseConfig> phaseConfigList = null;
 
@@ -124,6 +126,7 @@ public class MultiLevelPhaseConfig extends PhaseConfig<MultiLevelPhaseConfig> {
         phase.setConfigPolicy(phaseConfigPolicy.createChildThreadConfigPolicy(ChildThreadType.PART_THREAD));
         phase.setMultilevelProvider(buildMultiLevelProvider());
         phase.setThreadPoolExector(buildThreadPoolExecutor());
+        phase.setMultithreaded(multithreaded);
         List<PhaseConfig> phaseConfigList_ = phaseConfigList;
         if (ConfigUtils.isEmptyCollection(phaseConfigList_)) {
             phaseConfigList_ = Arrays.asList(
