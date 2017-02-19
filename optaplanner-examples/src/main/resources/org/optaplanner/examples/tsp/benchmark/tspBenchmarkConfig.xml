@@ -105,4 +105,49 @@
       </localSearch>
     </solver>
   </solverBenchmark>
+  <solverBenchmark>
+  	<name>MultiLevel (1)</name>
+  	<solver>
+	  	<multiLevelSearch>
+		  	<multithreaded>true</multithreaded>
+			  <constructionHeuristic>
+			    <constructionHeuristicType>FIRST_FIT_DECREASING</constructionHeuristicType>
+			  </constructionHeuristic>
+		  	<multiLevelProvider class="org.optaplanner.examples.tsp.domain.solver.TSPMultiLevelProvider">  		
+		  		<contractionRate>0.2</contractionRate>
+		  		<relaxSpringForce>0.1</relaxSpringForce>
+		  		<iterationCountOfRelax>100</iterationCountOfRelax>
+		  		<relaxEpsilonToQuit>1.0</relaxEpsilonToQuit>
+		  		<minSize>10</minSize>
+		  	</multiLevelProvider>
+			
+		  	<localSearch>
+			    <unionMoveSelector>
+			      <changeMoveSelector>
+			        <cacheType>PHASE</cacheType>
+			        <selectionOrder>SHUFFLED</selectionOrder>
+			      </changeMoveSelector>
+			      <tailChainSwapMoveSelector/>
+			      <subChainChangeMoveSelector>
+			        <subChainSelector>
+			          <maximumSubChainSize>50</maximumSubChainSize>
+			        </subChainSelector>
+			        <selectReversingMoveToo>true</selectReversingMoveToo>
+			      </subChainChangeMoveSelector>
+			    </unionMoveSelector>
+			    <acceptor>
+			      <lateAcceptanceSize>400</lateAcceptanceSize>
+			    </acceptor>
+			    <forager>
+			      <acceptedCountLimit>1</acceptedCountLimit>
+			    </forager>
+			     <termination>
+		      		<secondsSpentLimit>10</secondsSpentLimit>
+		      		<unimprovedSecondsSpentLimit>2</unimprovedSecondsSpentLimit>
+		    	</termination>
+		  	</localSearch>
+		  </multiLevelSearch>
+	  </solver>
+  </solverBenchmark>
+  
 </plannerBenchmark>

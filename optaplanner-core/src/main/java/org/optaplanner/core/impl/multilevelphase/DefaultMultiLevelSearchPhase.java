@@ -161,7 +161,6 @@ public class DefaultMultiLevelSearchPhase<Solution_, V extends LevelObject<Solut
 								null, 
 								currentScope,
 								shouldFragmentsBeCoarsed);
-//						System.out.println("Begin solving fragment " + s);
 						Solution_ fragmentSolution = solver.solve(s);
 						
 //						System.out.println("End solving fragment " + fragmentSolution);
@@ -169,7 +168,7 @@ public class DefaultMultiLevelSearchPhase<Solution_, V extends LevelObject<Solut
 					}
 				});
 			}
-			
+			System.out.println("Fragments to process " + tasks.size());
 						
 			if (multithreaded) {
 				try {

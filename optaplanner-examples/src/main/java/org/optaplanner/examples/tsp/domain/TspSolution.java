@@ -49,6 +49,7 @@ public class TspSolution extends AbstractPersistable {
     protected String distanceUnitOfMeasurement;
     private List<Location> locationList;
     private Domicile domicile;
+    private Visit end;
 
     private List<Visit> visitList;
 
@@ -92,6 +93,14 @@ public class TspSolution extends AbstractPersistable {
     public Domicile getDomicile() {
         return domicile;
     }
+    
+    public void setEnd(Visit end) {
+		this.end = end;
+	}
+    
+    public Visit getEnd() {
+		return end;
+	}
 
     public void setDomicile(Domicile domicile) {
         this.domicile = domicile;

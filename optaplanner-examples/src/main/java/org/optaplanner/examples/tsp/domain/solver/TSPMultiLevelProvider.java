@@ -251,12 +251,7 @@ public class TSPMultiLevelProvider implements MultiLevelProvider<TspSolution, TS
 					fragment.setName(current.getName() + "-f" + fragId);
 					// don't do that
 					fragment.setLocationList(locationsSet);
-					if (fragId == domicleFragment) {
-						// add domicle
-//						Domicile currD = current.getDomicile();
-//						fragment.setDomicile(new Domicile(currD.getLocation().getId(), currD.getLocation()));
-					}
-					
+		
 					
 					fragments.add(fragment);
 				}
@@ -444,8 +439,6 @@ public class TSPMultiLevelProvider implements MultiLevelProvider<TspSolution, TS
 		}
 		
 		return current;
-		// TODO Auto-generated method stub
-
 	}
 
 	public void setDoContractUnderPercentage(double doContractUnderPercentage) {

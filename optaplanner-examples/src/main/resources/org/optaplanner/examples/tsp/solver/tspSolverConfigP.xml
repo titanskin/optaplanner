@@ -18,39 +18,26 @@
     <minutesSpentLimit>2</minutesSpentLimit>
   </termination>
   -->
-  <multiLevelSearch>
-  	<multithreaded>true</multithreaded>
-	  <constructionHeuristic>
-	    <constructionHeuristicType>FIRST_FIT_DECREASING</constructionHeuristicType>
-	  </constructionHeuristic>
-  	<multiLevelProvider class="org.optaplanner.examples.tsp.domain.solver.TSPMultiLevelProvider">  		
-  		<contractionRate>0.2</contractionRate>
-  		<relaxSpringForce>0.1</relaxSpringForce>
-  		<iterationCountOfRelax>100</iterationCountOfRelax>
-  		<relaxEpsilonToQuit>1.0</relaxEpsilonToQuit>
-  		<minSize>10</minSize>
-  	</multiLevelProvider>
-	
+  <partitionedSearch>
+  	<solutionPartitionerClass>org.optaplanner.examples.tsp.domain.solver.PartitionProvider</solutionPartitionerClass>
+	<constructionHeuristic>
+    	<constructionHeuristicType>FIRST_FIT_DECREASING</constructionHeuristicType>
+  	</constructionHeuristic>
   	<localSearch>
 	    <unionMoveSelector>
 	      <changeMoveSelector>
 	        <cacheType>PHASE</cacheType>
 	        <selectionOrder>SHUFFLED</selectionOrder>
-	        <filterClass>org.optaplanner.examples.tsp.domain.solver.filter.TspChainMoveFilter</filterClass>
 	      </changeMoveSelector>
-	      <tailChainSwapMoveSelector>
-	      	<filterClass>org.optaplanner.examples.tsp.domain.solver.filter.TspSwapMoveFilter</filterClass>
-	      </tailChainSwapMoveSelector>
+	      <tailChainSwapMoveSelector/>
 	      <subChainChangeMoveSelector>
 	        <subChainSelector>
 	          <maximumSubChainSize>50</maximumSubChainSize>
 	        </subChainSelector>
 	        <selectReversingMoveToo>true</selectReversingMoveToo>
-	        <filterClass>org.optaplanner.examples.tsp.domain.solver.filter.TspSubChainMoveFilter</filterClass>
 	      </subChainChangeMoveSelector>
 	    </unionMoveSelector>
-	    
-	    <acceptor>	    
+	    <acceptor>
 	      <lateAcceptanceSize>400</lateAcceptanceSize>
 	    </acceptor>
 	    <forager>
@@ -61,5 +48,5 @@
       		<unimprovedSecondsSpentLimit>2</unimprovedSecondsSpentLimit>
     	</termination>
   	</localSearch>
-  </multiLevelSearch>
+  </partitionedSearch>
  </solver>
